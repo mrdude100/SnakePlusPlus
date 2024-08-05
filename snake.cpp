@@ -3,85 +3,97 @@
 #include <windows.h>
 using namespace std;
 
+// Game variables
 bool gameOver;
-const int width = 20;
-const int height = 20;
+const int width = 20; // board width
+const int height = 20; // height
 int x, y, fruitX, fruitY, score;
-int tailX[100], tailY[100];
-int nTail;
+int tailX[100], tailY[100]; // snake tail position arrays
+int nTail; // length of the snake tail
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
+bool wallsWithCollision = true; // game mode variable
+
 
 void Setup() {
     gameOver = false;
     dir = STOP;
-    x = width / 2;
+    x = width / 2; // Snake starting position
     y = height / 2;
-    fruitX = rand() % width;
+    fruitX = rand() % width; // Random fruit position
     fruitY = rand() % height;
     score = 0;
 }
 
+// Function to draw the game board
 void Draw() {
     system("cls"); // Clear screen
+
+    // top border
     for (int i = 0; i < width + 2; i++)
         cout << "#";
     cout << endl;
 
+    // Draw game area
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (j == 0)
-                cout << "#";
+                cout << "#"; // Left border
             if (i == y && j == x)
-                cout << "O";
+                cout << "O"; // Snake head
             else if (i == fruitY && j == fruitX)
-                cout << "F";
+                cout << "F"; // Fruit
             else {
                 bool print = false;
                 for (int k = 0; k < nTail; k++) {
                     if (tailX[k] == j && tailY[k] == i) {
-                        cout << "o";
+                        cout << "o"; // tail
                         print = true;
                     }
                 }
                 if (!print)
-                    cout << " ";
+                    cout << " "; // Empty space
             }
 
             if (j == width - 1)
-                cout << "#";
+                cout << "#"; // Right border
         }
         cout << endl;
     }
 
+    // Draw bottom border
     for (int i = 0; i < width + 2; i++)
         cout << "#";
     cout << endl;
+
+    // Display score
     cout << "Score:" << score << endl;
 }
 
+// user input
 void Input() {
-    if (_kbhit()) {
+    if (_kbhit()) { 
         switch (_getch()) {
         case 'a':
-            dir = LEFT;
+            dir = LEFT; 
             break;
         case 'd':
-            dir = RIGHT;
+            dir = RIGHT; 
             break;
         case 'w':
-            dir = UP;
+            dir = UP; 
             break;
         case 's':
-            dir = DOWN;
+            dir = DOWN; 
             break;
         case 'x':
-            gameOver = true;
+            gameOver = true; 
             break;
         }
     }
 }
 
+// game logic
 void Logic() {
     int prevX = tailX[0];
     int prevY = tailY[0];
@@ -112,13 +124,26 @@ void Logic() {
     default:
         break;
     }
-    if (x >= width) x = 0; else if (x < 0) x = width - 1;
-    if (y >= height) y = 0; else if (y < 0) y = height - 1;
 
+    // wall collision if mode is selected
+    if (wallsWithCollision) {
+        if (x >= width || x < 0 || y >= height || y < 0) {
+            gameOver = true; // end game if collision mode
+        }
+    } else {
+        // if mode is not collision --> allow passing through walls
+        if (x >= width) x = 0; 
+        else if (x < 0) x = width - 1;
+        if (y >= height) y = 0;
+        else if (y < 0) y = height - 1;
+    }
+
+    // check collision with itself
     for (int i = 0; i < nTail; i++)
         if (tailX[i] == x && tailY[i] == y)
             gameOver = true;
 
+    // check if snake ate the fruit (same coordinates)
     if (x == fruitX && y == fruitY) {
         score += 10;
         fruitX = rand() % width;
@@ -127,13 +152,31 @@ void Logic() {
     }
 }
 
+// game mode menu
+void DisplayMenu() {
+    int choice;
+    cout << "Welcome to Snake Game!" << endl;
+    cout << "Select Game Mode:" << endl;
+    cout << "1. Walls with Collision" << endl;
+    cout << "2. Walls with Pass Through" << endl;
+    cout << "Enter your choice (1 or 2): ";
+    cin >> choice;
+
+    // game mode
+    if (choice == 1) {
+        wallsWithCollision = true;
+    } else if (choice == 2) {
+        wallsWithCollision = false;
+    } 
+}
 int main() {
-    Setup();
+    DisplayMenu(); // display game mode menu
+    Setup(); // set up initial game state (with snake in the middle)
     while (!gameOver) {
-        Draw();
-        Input();
-        Logic();
-        Sleep(100); // Slow down the game
+        Draw(); // draw the game board
+        Input(); // handle user input
+        Logic(); // update game logic
+        Sleep(100); // slow down the game (was too fast)
     }
     return 0;
 }

@@ -67,7 +67,7 @@ void Draw() {
     cout << endl;
 
     // Display score
-    cout << "Score:" << score << endl;
+    cout << "Your Score:" << score << endl;
 }
 
 // user input
@@ -155,10 +155,10 @@ void Logic() {
 // game mode menu
 void DisplayMenu() {
     int choice;
-    cout << "Welcome to Snake Game!" << endl;
+    cout << "Welcome to Snake++!" << endl;
     cout << "Select Game Mode:" << endl;
-    cout << "1. Walls with Collision" << endl;
-    cout << "2. Walls with Pass Through" << endl;
+    cout << "1. Wall Collision" << endl;
+    cout << "2. Pass-Through Walls" << endl;
     cout << "Enter your choice (1 or 2): ";
     cin >> choice;
 
